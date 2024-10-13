@@ -1,0 +1,71 @@
+name: Android Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - run: |
+          npm install -g appium
+        name: Install dev dependencies
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+      - run: |
+          cwd=$(pwd)
+          pushd "$cwd"
+          appium driver install uiautomator2
+          appium driver doctor uiautomator2
+          nohup appium server \
+            --port=4723 \
+            --address=127.0.0.1 \
+            --relaxed-security \
+            --log-no-colors \
+            --log-timestamp \
+            2>&1 > "$cwd/appium.log" &
+          popd
+        name: Start Appium server
+      - run: nohup adb logcat > logcat.log &
+        name: Capture logcat
+      - uses: robinraju/release-downloader@v1
+        with:
+          repository: 'saucelabs/my-demo-app-android'
+          tag: '2.1.0'
+          fileName: 'mda-2.1.0-24.apk'
+          out-file-path: 'app'
+      - name: run tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 32
+          target: google_apis
+          arch: x86_64
+          force-avd-creation: false
+          disable-spellchecker: true
+          disable-animations: true
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          script: npm install && npm run test
+      - name: Save logcat output
+        uses: actions/upload-artifact@master
+        with:
+          name: logcat-api32
+          path: logcat.log
+      - name: Save server output
+        uses: actions/upload-artifact@master
+        with:
+          name: appium-api32
+          path: appium.log

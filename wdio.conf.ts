@@ -24,7 +24,7 @@ export const config: WebdriverIOConfig = {
 
     capabilities: [
         {
-            hostname: '192.168.1.20',
+            hostname: '127.0.0.1',
             port: 4723,
             'appium:udid': 'emulator-5554',
             platformName: 'Android',
