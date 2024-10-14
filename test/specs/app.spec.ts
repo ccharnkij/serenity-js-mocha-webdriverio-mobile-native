@@ -31,10 +31,10 @@ describe('serenity-js Android & iOS app', () => {
         await actorCalled('Alice').attemptsTo(
             Click.on(browser.isAndroid ? 
                 PageElement.located(By.css('~Displays number of items in your cart')) : 
-                PageElement.located(By.css('~AddToCartUnselected Icons'))),
+                PageElement.located(By.css('~Cart-tab-item'))),
             Ensure.eventually(browser.isAndroid ? 
                 PageElement.located(By.css('android=new UiSelector().text("Go Shopping")')) : 
-                PageElement.located(By.css('~Go Shopping')), isVisible())
+                PageElement.located(By.css('~GoShopping')), isVisible())
             .timeoutAfter(Duration.ofSeconds(5))
         )
 
