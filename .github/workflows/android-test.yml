@@ -58,14 +58,16 @@ jobs:
           disable-spellchecker: true
           disable-animations: true
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
-          script: npm install && npm run test
+          script: npm install && npm run test:android
       - name: Save logcat output
+        if: ${{ always() }}
         uses: actions/upload-artifact@master
         with:
-          name: logcat-api32
+          name: logcat.log
           path: logcat.log
       - name: Save server output
+        if: ${{ always() }}
         uses: actions/upload-artifact@master
         with:
-          name: appium-api32
+          name: appium.log
           path: appium.log

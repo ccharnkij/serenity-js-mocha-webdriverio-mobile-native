@@ -7,7 +7,7 @@ import { By, Click, isVisible, PageElement } from '@serenity-js/web'
 import CartScreen from '../serenity/screens/CartScreen'
 import HomeScreen from '../serenity/screens/HomeScreen'
 
-describe('serenity-js Android app', () => {
+describe('serenity-js Android & iOS app', () => {
 
     afterEach(async function() {
         await browser.reloadSession();
@@ -16,7 +16,7 @@ describe('serenity-js Android app', () => {
     /**
      * This passes. Wrapping webdriverio with Interaction
      */
-    it('offers a web testing tutorial', async () => {
+    it('uses WebdriverIO and should pass', async () => {
         await actorCalled('Alice').attemptsTo(
             HomeScreen.clicksFirstItem(),
             CartScreen.expectGoShoppingButtonDisplayed()
@@ -27,10 +27,14 @@ describe('serenity-js Android app', () => {
      * This fails. Error because SerenityJS tries to call getWindowHandle but this function
      * does not exist for Appium
      */
-    it(`offers examples to help you practice test automation`, async () => {
+    it(`uses SerenityJS and should fail due to function mapping error`, async () => {
         await actorCalled('Alice').attemptsTo(
-            Click.on(PageElement.located(By.css('~Displays number of items in your cart'))),
-            Ensure.eventually(PageElement.located(By.css('android=new UiSelector().text("Go Shopping")')), isVisible())
+            Click.on(browser.isAndroid ? 
+                PageElement.located(By.css('~Displays number of items in your cart')) : 
+                PageElement.located(By.css('~AddToCartUnselected Icons'))),
+            Ensure.eventually(browser.isAndroid ? 
+                PageElement.located(By.css('android=new UiSelector().text("Go Shopping")')) : 
+                PageElement.located(By.css('~Go Shopping')), isVisible())
             .timeoutAfter(Duration.ofSeconds(5))
         )
 

@@ -6,8 +6,10 @@
   "scripts": {
     "postinstall": "serenity-bdd update",
     "clean": "rimraf target",
-    "test": "failsafe clean test:execute test:report",
-    "test:execute": "wdio wdio.conf.ts",
+    "test:android": "failsafe clean test:execute-android test:report",
+    "test:ios": "failsafe clean test:execute-ios test:report",
+    "test:execute-android": "wdio wdio-android.conf.ts",
+    "test:execute-ios": "wdio wdio-ios.conf.ts",
     "test:report": "serenity-bdd run --features ./test/specs",
     "start": "mkdirp target/site/serenity && npx http-server -p 8080 target/site/serenity -s -o",
     "lint": "eslint --ext ts --config .eslintrc.js .",

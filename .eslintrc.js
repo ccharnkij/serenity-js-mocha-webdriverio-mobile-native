@@ -27,6 +27,17 @@ module.exports = {
         'sort-imports': 'off',
         'import/order': 'off',
         'unused-imports/no-unused-imports': 'error',
+        "unicorn/import-style": [
+	        "error",
+	        {
+		        "styles": {
+			        "util": false,
+			        "path": {
+				    "named": true
+			        }
+		        }
+	        }
+        ],
 
         'no-multiple-empty-lines': ['warn', {
             'max': 1,

@@ -3,7 +3,7 @@ import { Actor, Interaction } from '@serenity-js/core'
 class CartScreen {
     
     get goShoppingButton() {
-        return $('android=new UiSelector().text("Go Shopping")');
+        return browser.isAndroid ? $('android=new UiSelector().text("Go Shopping")') : $('~Go Shopping');
     }
 
     expectGoShoppingButtonDisplayed = (): Interaction =>

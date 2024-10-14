@@ -1,0 +1,76 @@
+name: iOS Test
+
+on:
+  workflow_dispatch:
+
+env:
+  SHOW_XCODE_LOG: true
+  APPIUM_TEST_SERVER_PORT: '4723'
+  APPIUM_TEST_SERVER_HOST: '127.0.0.1'
+
+jobs:
+  test:
+    runs-on: macos-12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '14.2'
+      - run: xcrun simctl list devices available
+        name: List Installed Simulators
+      - run: |
+          brew install xq
+          xcrun simctl list runtimes
+          xcrun --sdk iphonesimulator --show-sdk-version
+        name: List Runtimes
+      - run: |
+          cwd=$(pwd)
+          pushd "$cwd"
+          npm install -g appium
+          appium driver install xcuitest
+          appium driver doctor xcuitest
+          appium driver run xcuitest build-wda
+          nohup appium server \
+            --port=4723 \
+            --address=127.0.0.1 \
+            --relaxed-security \
+            --log-no-colors \
+            --log-timestamp \
+            2>&1 > "$cwd/appium.log" &
+          sleep 5
+          popd
+        name: Start Appium server
+      - run: |
+          target_sim_id=$(xcrun simctl list devices available | grep "iPhone 13 (" | cut -d "(" -f2 | cut -d ")" -f1)
+          open -Fn "$(xcode-select -p)/Applications/Simulator.app"
+          xcrun simctl bootstatus $target_sim_id -b
+        name: Preboot iPhone 13
+      - uses: robinraju/release-downloader@v1
+        with:
+          repository: 'saucelabs/my-demo-app-ios'
+          tag: '2.1.1'
+          fileName: 'SauceLabs-Demo-App.Simulator.zip'
+          out-file-path: 'app'
+      - run: |
+          unzip app/SauceLabs-Demo-App.Simulator.zip
+          mv Payload/ app/Payload
+        name: Unzip AUT
+      - run: |
+          if ! nc -z $APPIUM_TEST_SERVER_HOST $APPIUM_TEST_SERVER_PORT; then
+            echo "Appium server is still not listening at $APPIUM_TEST_SERVER_HOST:$APPIUM_TEST_SERVER_PORT"
+            cat appium.log
+            exit 1
+          fi
+          npm install && npm run test:ios
+        name: Run functional tests
+      - name: Save server output
+        if: ${{ always() }}
+        uses: actions/upload-artifact@master
+        with:
+          name: appium.log
+          path: appium.log

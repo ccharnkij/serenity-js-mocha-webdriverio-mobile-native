@@ -1,5 +1,4 @@
 import type { WebdriverIOConfig } from '@serenity-js/webdriverio';
-import { join } from 'path';
 
 export const config: WebdriverIOConfig = {
     framework: '@serenity-js/webdriverio',
@@ -22,19 +21,7 @@ export const config: WebdriverIOConfig = {
 
     maxInstances: 1,
 
-    capabilities: [
-        {
-            hostname: '127.0.0.1',
-            port: 4723,
-            'appium:udid': 'emulator-5554',
-            platformName: 'Android',
-            'appium:automationName': 'UiAutomator2',
-            'appium:app': join(process.cwd(), './app/mda-2.1.0-24.apk'),
-            'appium:fullReset': true,
-            'appium:appWaitActivity': '.view.activities.MainActivity',
-            'appium:appPackage': 'com.saucelabs.mydemoapp.android',
-        },
-    ],
+    capabilities: [],
     //
     // ===================
     // Test Configurations
