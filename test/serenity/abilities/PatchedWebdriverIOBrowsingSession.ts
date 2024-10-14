@@ -42,14 +42,17 @@ export class PatchedWebdriverIOBrowsingSession extends WebdriverIOBrowsingSessio
     }
 
     private async assignPageId(): Promise<CorrelationId> {
+        // todo: we'll need a good way to identify the context in native mobile
         const context = await this.browser.getContext();
 
-        if (typeof context === 'string') {
-            return new CorrelationId(context);
-        }
+        if (context) {
+            if (typeof context === 'string') {
+                return new CorrelationId(context);
+            }
 
-        if (context.id) {
-            return new CorrelationId(context.id);
+            if (context.id) {
+                return new CorrelationId(context.id);
+            }
         }
 
         return CorrelationId.create();
