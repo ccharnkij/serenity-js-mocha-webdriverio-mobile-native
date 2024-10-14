@@ -1,10 +1,6 @@
 /* eslint-disable unicorn/filename-case */
 import { CorrelationId } from '@serenity-js/core/lib/model';
 import { WebdriverIOBrowsingSession, WebdriverIOPage } from '@serenity-js/webdriverio';
-import { WebdriverIOErrorHandler } from '@serenity-js/webdriverio/lib/screenplay/models/WebdriverIOErrorHandler';
-import {
-    WebdriverIOModalDialogHandler
-} from '@serenity-js/webdriverio/lib/screenplay/models/WebdriverIOModalDialogHandler';
 
 export class PatchedWebdriverIOBrowsingSession extends WebdriverIOBrowsingSession {
 
@@ -27,13 +23,16 @@ export class PatchedWebdriverIOBrowsingSession extends WebdriverIOBrowsingSessio
     protected override async registerCurrentPage(): Promise<WebdriverIOPage> {
         const pageId = await this.assignPageId();
 
-        const errorHandler = new WebdriverIOErrorHandler();
+        // todo: native mobile will need a dedicated error handler
+        // const errorHandler = new WebdriverIOErrorHandler();
 
         const page = new WebdriverIOPage(
             this,
             this.browser,
-            new WebdriverIOModalDialogHandler(this.browser, errorHandler),
-            errorHandler,
+            undefined,   // todo: native mobile will need a dedicated modal dialog handler
+            // new WebdriverIOModalDialogHandler(this.browser, errorHandler),
+            undefined,
+            // errorHandler,
             pageId,
         );
 
