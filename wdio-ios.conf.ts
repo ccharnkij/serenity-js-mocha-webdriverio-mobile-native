@@ -8,11 +8,16 @@ config.capabilities = [
         port: 4723,
         platformName: 'iOS',
         'appium:deviceName': 'iPhone 13',
+        'appium:platformVersion': '16.2',
         'appium:automationName': 'XCUITest',
         'appium:app': join(process.cwd(), './app/Payload/My Demo App.app'),
-        'appium:fullReset': true,
+        'appium:fullReset': false,
+        'appium:noReset': true,
         'appium:showXcodeLog': true,
+        'appium:useNewWDA': true
     }
 ];
+
+config.connectionRetryCount = 0;
 
 export {config} from './wdio.conf';

@@ -3,7 +3,7 @@ import { Actor, Interaction } from '@serenity-js/core'
 class HomeScreen {
     
     get cart() {
-        return browser.isAndroid ? $('~Displays number of items in your cart') : $('~AddToCartUnselected Icons');
+        return browser.isAndroid ? $('~Displays number of items in your cart') : $('~Cart-tab-item');
     }
 
     clicksFirstItem = (): Interaction =>
