@@ -51,8 +51,6 @@ export class PatchedWebdriverIOBrowsingSession extends WebdriverIOBrowsingSessio
         // todo: we'll need a good way to identify the context in native mobile
         const context = await this.browser.getContext();
 
-        console.log({ context })
-
         try {
             if (typeof context === 'string') {
                 return new CorrelationId(context);

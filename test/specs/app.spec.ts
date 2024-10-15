@@ -40,7 +40,8 @@ describe('serenity-js Android & iOS app', () => {
                 //     PageElement.located(By.css('~Cart-tab-item'))),
                 (browser.isAndroid ?
                     PageElement.located(By.css('~Displays number of items in your cart')) :
-                    PageElement.located(By.css('~Cart-tab-item'))).click(),
+                    PageElement.located(By.css('~Cart-tab-item'))
+                ).click(),
 
 
                 Ensure.eventually(
