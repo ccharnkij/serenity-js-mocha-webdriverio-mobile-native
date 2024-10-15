@@ -1,5 +1,12 @@
 /* eslint-disable unicorn/filename-case */
 import { CorrelationId } from '@serenity-js/core/lib/model';
+import {
+    AbsentModalDialog,
+    AcceptedModalDialog,
+    DismissedModalDialog,
+    ModalDialog,
+    ModalDialogHandler
+} from '@serenity-js/web';
 import { WebdriverIOBrowsingSession, WebdriverIOPage } from '@serenity-js/webdriverio';
 
 export class PatchedWebdriverIOBrowsingSession extends WebdriverIOBrowsingSession {
@@ -29,8 +36,7 @@ export class PatchedWebdriverIOBrowsingSession extends WebdriverIOBrowsingSessio
         const page = new WebdriverIOPage(
             this,
             this.browser,
-            undefined,   // todo: native mobile will need a dedicated modal dialog handler
-            // new WebdriverIOModalDialogHandler(this.browser, errorHandler),
+            new WebdriverIONativeMobileModalDialogHandler(this.browser),
             undefined,
             // errorHandler,
             pageId,
@@ -61,5 +67,80 @@ export class PatchedWebdriverIOBrowsingSession extends WebdriverIOBrowsingSessio
         }
 
         return CorrelationId.create();
+    }
+}
+
+/**
+ * Todo: we'll need a more sophisticated error handler for native mobile
+ */
+class WebdriverIONativeMobileModalDialogHandler extends ModalDialogHandler {
+
+    private readonly defaultHandler: () => Promise<void> =
+        async () => {
+            const message = await this.browser.getAlertText();
+
+            await this.browser.dismissAlert();
+
+            this.modalDialog = new DismissedModalDialog(message);
+        }
+
+    private currentHandler: () => Promise<void>;
+
+    constructor(
+        private readonly browser: WebdriverIO.Browser,
+    ) {
+        super();
+    }
+
+    async tryToHandleDialog(): Promise<void> {
+        await this.currentHandler();
+    }
+
+    async acceptNext(): Promise<void> {
+        this.currentHandler = async () => {
+            const message = await this.browser.getAlertText();
+
+            await this.browser.acceptAlert();
+
+            this.modalDialog = new AcceptedModalDialog(message);
+        };
+    }
+
+    async acceptNextWithValue(text: string | number): Promise<void> {
+        this.currentHandler = async () => {
+            await this.browser.sendAlertText(String(text));
+            const message = await this.browser.getAlertText();
+
+            await this.browser.acceptAlert();
+
+            this.modalDialog = new AcceptedModalDialog(message);
+        };
+    }
+
+    async dismissNext(): Promise<void> {
+        this.currentHandler = async () => {
+            const message = await this.browser.getAlertText();
+
+            await this.browser.dismissAlert();
+
+            this.modalDialog = new DismissedModalDialog(message);
+        }
+    }
+
+    async reset(): Promise<void> {
+        this.modalDialog = new AbsentModalDialog();
+        this.currentHandler = this.defaultHandler;
+    }
+
+    /**
+     * @override
+     */
+    async last(): Promise<ModalDialog> {
+
+        if (this.modalDialog instanceof AbsentModalDialog) {
+            await this.tryToHandleDialog();
+        }
+
+        return this.modalDialog;
     }
 }
