@@ -1,6 +1,6 @@
 import 'mocha'
 
-import { Ensure } from '@serenity-js/assertions'
+import { Ensure, isPresent } from '@serenity-js/assertions'
 import { actorCalled, Duration } from '@serenity-js/core'
 import { By, Click, isVisible, PageElement } from '@serenity-js/web'
 import { BrowseTheWebWithWebdriverIO } from '@serenity-js/webdriverio';
@@ -42,9 +42,15 @@ describe('serenity-js Android & iOS app', () => {
                     PageElement.located(By.css('~Displays number of items in your cart')) :
                     PageElement.located(By.css('~Cart-tab-item'))).click(),
 
-                Ensure.eventually(browser.isAndroid ?
-                    PageElement.located(By.css('android=new UiSelector().text("Go Shopping")')) :
-                    PageElement.located(By.css('~GoShopping')), isVisible())
+
+                Ensure.eventually(
+                    browser.isAndroid ?
+                        PageElement.located(By.css('android=new UiSelector().text("Go Shopping")')) :
+                        PageElement.located(By.css('~GoShopping')),
+                    isPresent(),
+                    // todo: isVisible is not available in Appium, as it relies on isElementDisplayed that hasn't been implemented for Appium elements
+                    // isVisible()
+                )
                 .timeoutAfter(Duration.ofSeconds(5))
             )
     })
