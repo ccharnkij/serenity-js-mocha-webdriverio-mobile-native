@@ -34,9 +34,14 @@ describe('serenity-js Android & iOS app', () => {
         await actorCalled('Alice')
             .whoCan(new BrowseTheWebWithWebdriverIO(new PatchedWebdriverIOBrowsingSession(browser)))
             .attemptsTo(
-                Click.on(browser.isAndroid ?
+                // todo: element.scrollIntoView() is not available in Appium; we'll need an isMobile guard
+                // Click.on(browser.isAndroid ?
+                //     PageElement.located(By.css('~Displays number of items in your cart')) :
+                //     PageElement.located(By.css('~Cart-tab-item'))),
+                (browser.isAndroid ?
                     PageElement.located(By.css('~Displays number of items in your cart')) :
-                    PageElement.located(By.css('~Cart-tab-item'))),
+                    PageElement.located(By.css('~Cart-tab-item'))).click(),
+
                 Ensure.eventually(browser.isAndroid ?
                     PageElement.located(By.css('android=new UiSelector().text("Go Shopping")')) :
                     PageElement.located(By.css('~GoShopping')), isVisible())
